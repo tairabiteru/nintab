@@ -1,0 +1,8 @@
+[project]
+name = "nintab"
+version = "0.1.0"
+requires-python = ">=3.10"
+description = "Cron for humans."
+authors = [
+    {name = "Taira", email = "tairabiteru@users.noreply.github.com"}
+]

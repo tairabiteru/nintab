@@ -1,0 +1,3 @@
+.venv/**
+__main__.py
+**/__pycache__/**
