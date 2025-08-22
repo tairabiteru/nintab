@@ -30,14 +30,14 @@ def every_int_unit_at_time(now=None, number=None, unit=None, time=None) -> datet
     
     h, m, s = convert_to_time_tuple(time)
 
-    now = now.replace(hour=h, minute=m, second=s)
+    now = now.replace(hour=h, minute=m, second=s, microsecond=0)
     return now
 
 
 @scheduler("everyday at {time}")
 def everyday_at_time(now=None, time=None) -> datetime.datetime:
     h, m, s = convert_to_time_tuple(time)
-    future = now.replace(hour=h, minute=m, second=s)
+    future = now.replace(hour=h, minute=m, second=s, microsecond=0)
     if future < now:
         future += datetime.timedelta(days=1)
     return future
@@ -50,12 +50,12 @@ def every_weekday_at_time(now=None, weekday=None, time=None) -> datetime.datetim
         now += datetime.timedelta(days=1)
     
     h, m, s = convert_to_time_tuple(time)
-    future = now.replace(hour=h, minute=m, second=s)
+    future = now.replace(hour=h, minute=m, second=s, microsecond=0)
 
     if now > future:
         now += datetime.timedelta(days=7)
 
-    now = now.replace(hour=h, minute=m, second=s)
+    now = now.replace(hour=h, minute=m, second=s, microsecond=0)
     return now
 
 
@@ -78,7 +78,7 @@ def every_month_on_day_int_at_time(now=None, day=None, time=None) -> datetime.da
     if next_month == 13:
         next_month = 1
     
-    now = now.replace(month=next_month, day=day, hour=h, minute=m, second=s)
+    now = now.replace(month=next_month, day=day, hour=h, minute=m, second=s, microsecond=0)
     return now
 
 
