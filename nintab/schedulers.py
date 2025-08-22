@@ -34,6 +34,16 @@ def every_int_unit_at_time(now=None, number=None, unit=None, time=None) -> datet
     return now
 
 
+@scheduler("everyday at {time}")
+def everyday_at_time(now=None, time=None) -> datetime.datetime:
+    h, m, s = convert_to_time_tuple(time)
+    future = now.replace(hour=h, minute=m, second=s)
+    if future < now:
+        future += datetime.timedelta(days=1)
+    return future
+
+
+
 @scheduler("every {weekday} at {time}")
 def every_weekday_at_time(now=None, weekday=None, time=None) -> datetime.datetime:
     while now.date().weekday() != WEEKDAYS.index(weekday):
@@ -77,5 +87,6 @@ schedulers = [
     every_int_unit_at_time,
     every_weekday_at_time,
     every_month_on_day_int_at_time,
-    on_weekday_at_time
+    on_weekday_at_time,
+    everyday_at_time
 ]
