@@ -43,7 +43,6 @@ def everyday_at_time(now=None, time=None) -> datetime.datetime:
     return future
 
 
-
 @scheduler("every {weekday} at {time}")
 def every_weekday_at_time(now=None, weekday=None, time=None) -> datetime.datetime:
     h, m, s = convert_to_time_tuple(time)
@@ -74,19 +73,65 @@ def every_weekday(now=None, weekday=None) -> datetime.datetime:
 def every_month_on_day_int_at_time(now=None, day=None, time=None) -> datetime.datetime:
     day = int(day)
     h, m, s = convert_to_time_tuple(time)
+    future = now.replace(hour=h, minute=m, second=s, microsecond=0)
+
+    while future.day != day or future < now:
+        future += datetime.timedelta(days=1)
+
+    return future
+
+
+@scheduler("every {int} day of the month")
+def every_int_day_of_the_month(now=None, number=None) -> datetime.datetime:
+    day = int(number)
+    return every_month_on_day_int_at_time(f"every month on day {day} at 00:00")
+
+
+@scheduler("on the last day of the month at {time}")
+def on_the_last_day_of_the_month_at_time(now=None, time=None) -> datetime.datetime:
+    LAST_DAY_MONTHS = [None, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+    # Account for leap years
+    if now.month == 2:
+        try:
+            _ = now.replace(day=29)
+            last_day = 29
+        except ValueError:
+            last_day = 28
+    else:
+        last_day = LAST_DAY_MONTHS[now.month]
+
+    h, m, s = convert_to_time_tuple(time)
+
+    # If the current day is not the last day, this is the
+    # same problem as this scheduler.
+    if now.day != last_day:
+        return every_month_on_day_int_at_time(f"every month on day {last_day} at {time}", now=now)
     
-    if now.date().day == day:
-        future = now.replace(hour=h, minute=m, second=s)
-        if future > now:
-            return future
+    # Otherwise, it is the last day of the month, and we have
+    # to check to see if we've already passed the specified time.
+    future = now.replace(hour=h, minute=m, second=s, microsecond=0)
+    if future > now:
+        return future
     
-    next_month = now.date().month + 1
+    # If we have passed it, we have to advance the month by 1.
+    # We also have to check to see if we need to advance the year
+    # in December.
+    next_month = future.month + 1
     if next_month == 13:
         next_month = 1
-    
-    now = now.replace(month=next_month, day=day, hour=h, minute=m, second=s, microsecond=0)
-    return now
+        year_offset = 1
+    else:
+        year_offset = 0
 
+    # We can then create a "new now" by setting the day to the next
+    # day, which would be the 1st of the following month.
+    future = datetime.datetime(year=future.year + year_offset, month=next_month, day=1, hour=0, minute=0)
+
+    # At this point, this condition can be evaluated by the function
+    # normally, so we recurse.
+    return on_the_last_day_of_the_month_at_time(f"on the last day of the month at {time}", now=future)
+    
 
 schedulers = [
     every_int_unit,
@@ -95,5 +140,7 @@ schedulers = [
     every_month_on_day_int_at_time,
     on_weekday_at_time,
     everyday_at_time,
-    every_weekday
+    every_weekday,
+    every_int_day_of_the_month,
+    on_the_last_day_of_the_month_at_time
 ]
