@@ -148,9 +148,16 @@ def int_unit_before_after_the_last_day_of_the_month_at_time(
     delta = datetime.timedelta(seconds=seconds)
 
     if before_after == "before":
-        return future - delta
+        future -= delta
     else:
-        return future + delta
+        future += delta
+    
+    if future < now:
+        while future.month == now.month:
+            now += datetime.timedelta(days=1)
+        return int_unit_before_after_the_last_day_of_the_month_at_time(f"{number} {unit} {before_after} the last day of the month at {time}", now=now)
+    return future
+
     
 
 schedulers = [
