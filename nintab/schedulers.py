@@ -46,22 +46,28 @@ def everyday_at_time(now=None, time=None) -> datetime.datetime:
 
 @scheduler("every {weekday} at {time}")
 def every_weekday_at_time(now=None, weekday=None, time=None) -> datetime.datetime:
-    while now.date().weekday() != WEEKDAYS.index(weekday):
-        now += datetime.timedelta(days=1)
-    
     h, m, s = convert_to_time_tuple(time)
     future = now.replace(hour=h, minute=m, second=s, microsecond=0)
 
-    if now > future:
-        now += datetime.timedelta(days=7)
+    if now.date().weekday() == WEEKDAYS.index(weekday):
+        if future < now:
+            future += datetime.timedelta(days=7)
+        return future
 
-    now = now.replace(hour=h, minute=m, second=s, microsecond=0)
-    return now
+    while future.date().weekday() != WEEKDAYS.index(weekday):
+        future += datetime.timedelta(days=1)
+    
+    return future
 
 
 @scheduler("on {weekday} at {time}")
 def on_weekday_at_time(weekday=None, time=None) -> datetime.datetime:
     return every_weekday_at_time(f"every {weekday} at {time}")
+
+
+@scheduler("every {weekday}")
+def every_weekday(now=None, weekday=None) -> datetime.datetime:
+    return every_weekday_at_time(f"every {weekday} at 00:00", now=now)
 
 
 @scheduler("every month on day {int} at {time}")
@@ -88,5 +94,6 @@ schedulers = [
     every_weekday_at_time,
     every_month_on_day_int_at_time,
     on_weekday_at_time,
-    everyday_at_time
+    everyday_at_time,
+    every_weekday
 ]
