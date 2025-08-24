@@ -8,7 +8,8 @@ REGEX = {
     'weekday': r"((sun|mon|tues|wednes|thurs|fri|satur)days?){1}",
     'int': r"\d+",
     'time': r"([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?",
-    'season': r"(spring)|(summer)|(autumn)|(fall)|(winter){1}"
+    'season': r"(spring)|(summer)|(autumn)|(fall)|(winter){1}",
+    'before_after': r"(before)|(after)"
 }
 
 

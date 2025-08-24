@@ -131,6 +131,26 @@ def on_the_last_day_of_the_month_at_time(now=None, time=None) -> datetime.dateti
     # At this point, this condition can be evaluated by the function
     # normally, so we recurse.
     return on_the_last_day_of_the_month_at_time(f"on the last day of the month at {time}", now=future)
+
+
+@scheduler("{int} {unit} {before_after} the last day of the month at {time}")
+def int_unit_before_after_the_last_day_of_the_month_at_time(
+        now=None, 
+        number=None,
+        unit=None,
+        before_after=None,
+        time=None
+    ) -> datetime.datetime:
+    
+    number = int(number)
+    seconds = convert_to_seconds(number, unit)
+    future = on_the_last_day_of_the_month_at_time(f"on the last day of the month at {time}", now=now)
+    delta = datetime.timedelta(seconds=seconds)
+
+    if before_after == "before":
+        return future - delta
+    else:
+        return future + delta
     
 
 schedulers = [
@@ -142,5 +162,6 @@ schedulers = [
     everyday_at_time,
     every_weekday,
     every_int_day_of_the_month,
-    on_the_last_day_of_the_month_at_time
+    on_the_last_day_of_the_month_at_time,
+    int_unit_before_after_the_last_day_of_the_month_at_time,
 ]
